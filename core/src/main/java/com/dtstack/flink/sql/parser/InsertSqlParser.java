@@ -20,12 +20,7 @@
 
 package com.dtstack.flink.sql.parser;
 
-import org.apache.calcite.sql.SqlBasicCall;
-import org.apache.calcite.sql.SqlInsert;
-import org.apache.calcite.sql.SqlJoin;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlSelect;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.commons.lang3.StringUtils;
@@ -111,6 +106,24 @@ public class InsertSqlParser implements IParser {
                     parseNode(identifierNode, sqlParseResult);
                 }else {
                     sqlParseResult.addSourceTable(identifierNode.toString());
+                }
+                break;
+            case MATCH_RECOGNIZE:
+                SqlMatchRecognize node = (SqlMatchRecognize) sqlNode;
+                sqlParseResult.addSourceTable(node.getTableRef().toString());
+                break;
+            case UNION:
+                SqlNode unionLeft = ((SqlBasicCall)sqlNode).getOperands()[0];
+                SqlNode unionRight = ((SqlBasicCall)sqlNode).getOperands()[1];
+                if(unionLeft.getKind() == IDENTIFIER){
+                    sqlParseResult.addSourceTable(unionLeft.toString());
+                }else{
+                    parseNode(unionLeft, sqlParseResult);
+                }
+                if(unionRight.getKind() == IDENTIFIER){
+                    sqlParseResult.addSourceTable(unionRight.toString());
+                }else{
+                    parseNode(unionRight, sqlParseResult);
                 }
                 break;
             default:

@@ -32,6 +32,7 @@ import org.apache.flink.table.sinks.RetractStreamTableSink;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.types.Row;
 
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
@@ -83,6 +84,7 @@ public abstract class DBSink implements RetractStreamTableSink<Row> {
         jdbcFormatBuild.setInsertQuery(sql);
         jdbcFormatBuild.setBatchInterval(batchInterval);
         jdbcFormatBuild.setSqlTypes(sqlTypes);
+        jdbcFormatBuild.setTableName(tableName);
         RetractJDBCOutputFormat outputFormat = jdbcFormatBuild.finish();
 
         OutputFormatSinkFunction outputFormatSinkFunc = new OutputFormatSinkFunction(outputFormat);
@@ -113,6 +115,8 @@ public abstract class DBSink implements RetractStreamTableSink<Row> {
                 tmpFieldsType[i] = Types.BINARY;
             }else if(fieldType.equals(Float.class.getName()) || fieldType.equals(Double.class.getName())){
                 tmpFieldsType[i] = Types.DOUBLE;
+            }else if (fieldType.equals(Timestamp.class.getName())){
+                tmpFieldsType[i] = Types.TIMESTAMP;
             }else{
                 throw new RuntimeException("no support field type for sql. the input type:" + fieldType);
             }
@@ -133,6 +137,7 @@ public abstract class DBSink implements RetractStreamTableSink<Row> {
     public void emitDataStream(DataStream<Tuple2<Boolean, Row>> dataStream) {
         RichSinkFunction richSinkFunction = createJdbcSinkFunc();
         DataStreamSink streamSink = dataStream.addSink(richSinkFunction);
+        streamSink.name(tableName);
         if(parallelism > 0){
             streamSink.setParallelism(parallelism);
         }
