@@ -307,12 +307,12 @@ public class Main {
 
         //The plug-in information corresponding to the table is loaded into the classPath env
         addEnvClassPath(env, classPathSet);
-        int i = 0;
-        for(URL url : classPathSet){
-            String classFileName = String.format(CLASS_FILE_NAME_FMT, i);
-            env.registerCachedFile(url.getPath(),  classFileName, true);
-            i++;
-        }
+//        int i = 0;
+//        for(URL url : classPathSet){
+//            String classFileName = String.format(CLASS_FILE_NAME_FMT, i);
+//            env.registerCachedFile(url.getPath(),  classFileName, true);
+//            i++;
+//        }
     }
 
     private static StreamExecutionEnvironment getStreamExeEnv(Properties confProperties, String deployMode) throws IOException {

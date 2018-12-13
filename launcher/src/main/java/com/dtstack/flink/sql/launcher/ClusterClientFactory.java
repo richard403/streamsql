@@ -23,6 +23,9 @@ import com.dtstack.flink.yarn.JobParameter;
 import com.dtstack.flink.yarn.YarnClusterConfiguration;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
+import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.configuration.ConfigConstants;
@@ -73,11 +76,14 @@ public class ClusterClientFactory {
     public static ClusterClient createStandaloneClient(LauncherOptions launcherOptions) throws Exception {
         String flinkConfDir = launcherOptions.getFlinkconf();
         Configuration config = GlobalConfiguration.loadConfiguration(flinkConfDir);
-        StandaloneClusterClient clusterClient = new StandaloneClusterClient(config);
-        LeaderConnectionInfo connectionInfo = clusterClient.getClusterConnectionInfo();
-        InetSocketAddress address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
-        config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
-        config.setInteger(JobManagerOptions.PORT, address.getPort());
+//        StandaloneClusterClient clusterClient = new StandaloneClusterClient(config);
+//        LeaderConnectionInfo connectionInfo = clusterClient.getClusterConnectionInfo();
+//        InetSocketAddress address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
+//        config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
+//        config.setInteger(JobManagerOptions.PORT, address.getPort());
+//        clusterClient.setDetached(true);
+        ClusterDescriptor<StandaloneClusterId> clusterDescriptor = new StandaloneClusterDescriptor(config);
+        ClusterClient clusterClient = clusterDescriptor.retrieve(StandaloneClusterId.getInstance());
         clusterClient.setDetached(true);
         return clusterClient;
     }
